@@ -9,17 +9,17 @@ namespace op
     #ifdef _WIN32
         // Output callback register in Unity
         typedef void(__stdcall * OutputCallback) (void * ptrs, int ptrSize, int * sizes, int sizeSize,
-                                                  uchar outputType);
+                                                  unsigned char outputType);
         // Global output callback
         OutputCallback sUnityOutputCallback;
     #endif
 
     // Other global parameters
-    bool sMultiThreadEnabled = true;
+    bool sMultiThreadDisabled = false;
     bool sUnityOutputEnabled = true;
     bool sImageOutput = false;
 
-    enum class OutputType : uchar
+    enum class OutputType : unsigned char
     {
         None,
         DatumsInfo,
@@ -80,19 +80,20 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
     private:
         template<class T>
-        void outputValue(T ** ptrs, int ptrSize, int * sizes, int sizeSize, OutputType outputType)
+        void outputValue(T** ptrs, const int ptrSize, int* sizes, const int sizeSize, const OutputType outputType)
         {
             try
             {
                 #ifdef _WIN32
                     if (sUnityOutputCallback)
-                        sUnityOutputCallback(static_cast<void*>(ptrs), ptrSize, sizes, sizeSize, (uchar)outputType);
+                        sUnityOutputCallback(
+                            static_cast<void*>(ptrs), ptrSize, sizes, sizeSize, (unsigned char)outputType);
                 #else
                     UNUSED(ptrs);
                     UNUSED(ptrSize);
@@ -104,7 +105,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -114,17 +115,17 @@ namespace op
             {
                 auto& datum = datumsPtr->at(0);
                 int sizes[] = { 1 };
-                int sizeSize = 1;
-                unsigned long long *val[] = {&(datum->id), &(datum->subId), &(datum->subIdMax), &(datum->frameNumber)};
-                int ptrSize = 4;
+                const int sizeSize = 1;
+                unsigned long long* val[] = {&(datum->id), &(datum->subId), &(datum->subIdMax), &(datum->frameNumber)};
+                const int ptrSize = 4;
                 outputValue(&val[0], ptrSize, &sizes[0], sizeSize, OutputType::DatumsInfo);
 
-                char const *a[] = { datum->name.c_str() };
+                const char* a[] = { datum->name.c_str() };
                 outputValue(&a[0], 1, &sizes[0], sizeSize, OutputType::Name);
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -136,15 +137,15 @@ namespace op
                 if (!data.empty())
                 {
                     auto sizeVector = data.getSize();
-                    int sizeSize = sizeVector.size();
-                    int * sizes = &sizeVector[0];
-                    float * val = data.getPtr();
+                    const int sizeSize = (int)sizeVector.size();
+                    int* sizes = &sizeVector[0];
+                    float* val = data.getPtr();
                     outputValue(&val, 1, sizes, sizeSize, OutputType::PoseKeypoints);
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -156,15 +157,15 @@ namespace op
                 if (!data.empty())
                 {
                     auto sizeVector = data.getSize();
-                    int sizeSize = sizeVector.size();
-                    int * sizes = &sizeVector[0];
-                    long long * val = data.getPtr();
+                    const int sizeSize = (int)sizeVector.size();
+                    int* sizes = &sizeVector[0];
+                    long long* val = data.getPtr();
                     outputValue(&val, 1, sizes, sizeSize, OutputType::PoseIds);
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -176,15 +177,15 @@ namespace op
                 if (!data.empty())
                 {
                     auto sizeVector = data.getSize();
-                    int sizeSize = sizeVector.size();
-                    int * sizes = &sizeVector[0];
-                    float * val = data.getPtr();
+                    const int sizeSize = (int)sizeVector.size();
+                    int* sizes = &sizeVector[0];
+                    float* val = data.getPtr();
                     outputValue(&val, 1, sizes, sizeSize, OutputType::PoseScores);
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -196,15 +197,15 @@ namespace op
                 if (!data.empty())
                 {
                     auto sizeVector = data.getSize();
-                    int sizeSize = sizeVector.size();
-                    int * sizes = &sizeVector[0];
-                    float * val = data.getPtr();
+                    const int sizeSize = (int)sizeVector.size();
+                    int* sizes = &sizeVector[0];
+                    float* val = data.getPtr();
                     outputValue(&val, 1, sizes, sizeSize, OutputType::PoseHeatMaps);
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -226,7 +227,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -252,7 +253,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -264,7 +265,7 @@ namespace op
                 if (!data.empty())
                 {
                     auto sizeVector = data.getSize();
-                    int sizeSize = sizeVector.size();
+                    int sizeSize = (int)sizeVector.size();
                     int * sizes = &sizeVector[0];
                     float * val = data.getPtr();
                     outputValue(&val, 1, sizes, sizeSize, OutputType::FaceKeypoints);
@@ -272,7 +273,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -284,7 +285,7 @@ namespace op
                 if (!data.empty())
                 {
                     auto sizeVector = data.getSize();
-                    int sizeSize = sizeVector.size();
+                    int sizeSize = (int)sizeVector.size();
                     int * sizes = &sizeVector[0];
                     float * val = data.getPtr();
                     outputValue(&val, 1, sizes, sizeSize, OutputType::FaceHeatMaps);
@@ -292,7 +293,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -317,13 +318,13 @@ namespace op
                         valPtrs.push_back(vals);
                     }
                     int sizes[] = {2, 4};
-                    int sizeSize = 2;
-                    outputValue(valPtrs.data(), valPtrs.size(), sizes, sizeSize, OutputType::HandRectangles);
+                    const int sizeSize = 2;
+                    outputValue(valPtrs.data(), (int)valPtrs.size(), sizes, sizeSize, OutputType::HandRectangles);
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -335,15 +336,15 @@ namespace op
                 if (data.size() == 2 && !data[0].empty())
                 {
                     auto sizeVector = data[0].getSize();
-                    int sizeSize = sizeVector.size();
-                    int * sizes = &sizeVector[0];
-                    float * ptrs[] = { data[0].getPtr(), data[1].getPtr() };
+                    const int sizeSize = (int)sizeVector.size();
+                    int* sizes = &sizeVector[0];
+                    float* ptrs[] = { data[0].getPtr(), data[1].getPtr() };
                     outputValue(ptrs, 2, sizes, sizeSize, OutputType::HandKeypoints);
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -355,15 +356,15 @@ namespace op
                 if (data.size() == 2 && !data[0].empty())
                 {
                     auto sizeVector = data[0].getSize();
-                    int sizeSize = sizeVector.size();
-                    int * sizes = &sizeVector[0];
-                    float * ptrs[] = { data[0].getPtr(), data[1].getPtr() };
+                    const int sizeSize = (int)sizeVector.size();
+                    int* sizes = &sizeVector[0];
+                    float* ptrs[] = { data[0].getPtr(), data[1].getPtr() };
                     outputValue(ptrs, 2, sizes, sizeSize, OutputType::HandHeightMaps);
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -374,15 +375,15 @@ namespace op
                 auto& data = datumsPtr->at(0)->cvInputData; // cv::Mat
                 if (!data.empty())
                 {
-                    int sizeVector[] = { data.rows, data.cols, 3 };
-                    int sizeSize = 3;
-                    auto valPtr = data.data;
+                    int sizeVector[] = { data.rows(), data.cols(), 3 };
+                    const int sizeSize = 3;
+                    auto valPtr = data.data();
                     outputValue(&valPtr, 1, sizeVector, sizeSize, OutputType::Image);
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -394,7 +395,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
     };
@@ -417,7 +418,7 @@ namespace op
         try
         {
             // Starting
-            log("Starting OpenPose...");
+            opLog("Starting OpenPose...");
 
             // OpenPose wrapper
             auto spWrapper = std::make_shared<Wrapper>();
@@ -439,18 +440,18 @@ namespace op
             spWrapper->configure(*spWrapperStructOutput);
 
             // Multi-threading
-            if (!sMultiThreadEnabled)
+            if (sMultiThreadDisabled)
                 spWrapper->disableMultiThreading();
 
             // Processing...
             spWrapper->exec();
 
             // Ending
-            log("OpenPose finished");
+            opLog("OpenPose finished");
         }
         catch (const std::exception& e)
         {
-            log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+            errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
         }
     }
 
@@ -465,7 +466,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -476,13 +477,13 @@ namespace op
             {
                 if (ptrUserOutput != nullptr)
                 {
-                    log("Stopping...");
+                    opLog("Stopping...");
                     ptrUserOutput->stop();
                 }
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -496,23 +497,10 @@ namespace op
                 }
                 catch (const std::exception& e)
                 {
-                    log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                    errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
                 }
             }
         #endif
-
-        // Enable/disable multi-threading
-        OP_API void _OPSetMultiThreadEnable(bool enable)
-        {
-            try
-            {
-                sMultiThreadEnabled = enable;
-            }
-            catch (const std::exception& e)
-            {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
-            }
-        }
 
         // Enable/disable output callback
         OP_API void _OPSetOutputEnable(bool enable)
@@ -523,7 +511,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -536,33 +524,34 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
         // Configs
         OP_API void _OPConfigurePose(
-            uchar poseMode,
+            unsigned char poseMode,
             int netInputSizeX, int netInputSizeY, // Point
+            double netInputSizeDynamicBehavior,
             int outputSizeX, int outputSizeY, // Point
-            uchar keypointScaleMode, // ScaleMode
+            unsigned char keypointScaleMode, // ScaleMode
             int gpuNumber, int gpuNumberStart, int scalesNumber, float scaleGap,
-            uchar renderMode, // RenderMode
-            uchar poseModel, // PoseModel
+            unsigned char renderMode, // RenderMode
+            unsigned char poseModel, // PoseModel
             bool blendOriginalFrame, float alphaKeypoint, float alphaHeatMap, int defaultPartToRender,
             char* modelFolder, bool heatMapAddParts, bool heatMapAddBkg,
-            bool heatMapAddPAFs, // HeatMapType // uchar heatmap_type,
-            uchar heatMapScaleMode, // ScaleMode
+            bool heatMapAddPAFs, // HeatMapType // unsigned char heatmap_type,
+            unsigned char heatMapScaleMode, // ScaleMode
             bool addPartCandidates, float renderThreshold, int numberPeopleMax,
-            bool maximizePositives, double fpsMax, char* protoTxtPath, float upsamplingRatio, char* caffeModelPath)
+            bool maximizePositives, double fpsMax, char* protoTxtPath, char* caffeModelPath, float upsamplingRatio)
         {
             try
             {
                 spWrapperStructPose = std::make_shared<WrapperStructPose>(
-                    (PoseMode)poseMode, Point<int>{netInputSizeX, netInputSizeY}, Point<int>{outputSizeX, outputSizeY},
-                    (ScaleMode) keypointScaleMode, gpuNumber, gpuNumberStart, scalesNumber, scaleGap,
-                    (RenderMode) renderMode, (PoseModel) poseModel, blendOriginalFrame, alphaKeypoint, alphaHeatMap,
-                    defaultPartToRender, modelFolder,
+                    (PoseMode)poseMode, Point<int>{netInputSizeX, netInputSizeY}, netInputSizeDynamicBehavior,
+                    Point<int>{outputSizeX, outputSizeY}, (ScaleMode) keypointScaleMode, gpuNumber, gpuNumberStart,
+                    scalesNumber, scaleGap, (RenderMode) renderMode, (PoseModel) poseModel, blendOriginalFrame,
+                    alphaKeypoint, alphaHeatMap, defaultPartToRender, modelFolder,
                     // HeatMapType // (HeatMapType) heatmap_type,
                     flagsToHeatMaps(heatMapAddParts, heatMapAddBkg, heatMapAddPAFs),
                     (ScaleMode) heatMapScaleMode, addPartCandidates, renderThreshold, numberPeopleMax,
@@ -571,14 +560,14 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
         OP_API void _OPConfigureHand(
-            bool enable, uchar detector, int netInputSizeX, int netInputSizeY, // Point
+            bool enable, unsigned char detector, int netInputSizeX, int netInputSizeY, // Point
             int scalesNumber, float scaleRange,
-            uchar renderMode, // RenderMode
+            unsigned char renderMode, // RenderMode
             float alphaKeypoint, float alphaHeatMap, float renderThreshold)
         {
             try
@@ -589,13 +578,13 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
         OP_API void _OPConfigureFace(
-            bool enable, uchar detector, int netInputSizeX, int netInputSizeY, // Point
-            uchar renderMode, // RenderMode
+            bool enable, unsigned char detector, int netInputSizeX, int netInputSizeY, // Point
+            unsigned char renderMode, // RenderMode
             float alphaKeypoint, float alphaHeatMap, float renderThreshold)
         {
             try
@@ -607,7 +596,7 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
@@ -622,12 +611,12 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
         OP_API void _OPConfigureInput(
-            uchar producerType, char* producerString, // ProducerType
+            unsigned char producerType, char* producerString, // ProducerType
             unsigned long long frameFirst, unsigned long long frameStep, unsigned long long frameLast,
             bool realTimeProcessing, bool frameFlip, int frameRotate, bool framesRepeat,
             int cameraResolutionX, int cameraResolutionY, // Point
@@ -643,13 +632,13 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
         OP_API void _OPConfigureOutput(
-            double verbose, char* writeKeypoint, uchar writeKeypointFormat, // DataFormat
-            char* writeJson, char* writeCocoJson, char* writeCocoFootJson, int writeCocoJsonVariant, char* writeImages,
+            double verbose, char* writeKeypoint, unsigned char writeKeypointFormat, // DataFormat
+            char* writeJson, char* writeCocoJson, int writeCocoJsonVariants, int writeCocoJsonVariant, char* writeImages,
             char* writeImagesFormat, char* writeVideo, double writeVideoFps, bool writeVideoWithAudio,
             char* writeHeatMaps, char* writeHeatMapsFormat, char* writeVideo3D, char* writeVideoAdam, char* writeBvh,
             char* udpHost, char* udpPort)
@@ -658,18 +647,18 @@ namespace op
             {
                 spWrapperStructOutput = std::make_shared<WrapperStructOutput>(
                     verbose, writeKeypoint, (DataFormat) writeKeypointFormat, writeJson, writeCocoJson,
-                    writeCocoFootJson, writeCocoJsonVariant, writeImages, writeImagesFormat, writeVideo, writeVideoFps,
+                    writeCocoJsonVariants, writeCocoJsonVariant, writeImages, writeImagesFormat, writeVideo, writeVideoFps,
                     writeVideoWithAudio, writeHeatMaps, writeHeatMapsFormat, writeVideo3D, writeVideoAdam, writeBvh,
                     udpHost, udpPort);
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
 
         OP_API void _OPConfigureGui(
-            ushort displayMode, // DisplayMode
+            unsigned short displayMode, // DisplayMode
             bool guiVerbose, bool fullScreen)
         {
             try
@@ -679,7 +668,24 @@ namespace op
             }
             catch (const std::exception& e)
             {
-                log(e.what(), Priority::Max, __LINE__, __FUNCTION__, __FILE__);
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
+            }
+        }
+
+        OP_API void _OPConfigureDebugging(
+            unsigned char loggingLevel, // Priority
+            bool disableMultiThread,
+            unsigned long long profileSpeed)
+        {
+            try
+            {
+                ConfigureLog::setPriorityThreshold((Priority)loggingLevel);
+                sMultiThreadDisabled = disableMultiThread;
+                Profiler::setDefaultX(profileSpeed);
+            }
+            catch (const std::exception& e)
+            {
+                errorDestructor(e.what(), __LINE__, __FUNCTION__, __FILE__);
             }
         }
     }
